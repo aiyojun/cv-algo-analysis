@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Machine Vision System</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" type="text/css" href="index.css">
+	<link rel="script" href="jquery-3.6.0.min.js">
+	<style id="i_style_manager" type="text/css"></style>
+	<link rel="icon" type="image/png" href="vision.png">
+</head>
+<body>
+	<div id="i_controller" class="p_controller">
+		<div class="p_emm_block">
+			<label class="p_emm">机器视觉算法分析平台</label>
+		</div>
+		<div class="p_options">
+			<div class="p_ctl_block">
+				<label class="p_ctl_title">案例图像</label>
+				<button class="p_ctl_option" onclick="load_case_images()">案例载入</button>
+				<div id="i_case_images">
+				</div>
+			</div>
+			<div class="p_ctl_block">
+				<label class="p_ctl_title">预处理</label>
+				<button class="p_ctl_option" onclick="add_mo('灰度转化')">灰度转化</button>
+				<button class="p_ctl_option p_std_font" onclick="add_mo('HISTOGRAM统计')">HISTOGRAM统计</button>
+			</div>
+			<div class="p_ctl_block">
+				<label class="p_ctl_title">图像算法</label>
+				<button class="p_ctl_option" onclick="add_mo('滤波')">高斯滤波</button>
+				<button class="p_ctl_option" onclick="add_mo('池化')">池化</button>
+				<button class="p_ctl_option" onclick="add_mo('卷积')">卷积(未定义)</button>
+				<button class="p_ctl_option" onclick="add_mo('梯度算子')">梯度算子</button>
+				<button class="p_ctl_option p_std_font" onclick="add_mo('TOP-HAT变换')">TOP-HAT变换</button>
+				<button class="p_ctl_option p_std_font" onclick="add_mo('BLACK-HAT变换')">BLACK-HAT变换</button>
+				<button class="p_ctl_option" onclick="add_mo('开运算')">开运算</button>
+				<button class="p_ctl_option" onclick="add_mo('闭运算')">闭运算</button>
+				<button class="p_ctl_option" onclick="add_mo('过滤')">过滤</button>
+				<button class="p_ctl_option" onclick="add_mo('二值化')">二值化</button>
+				<button class="p_ctl_option" onclick="add_mo('均衡化')">均衡化</button>
+			</div>
+			<div class="p_ctl_block">
+				<label class="p_ctl_title">高级算法</label>
+				<button class="p_ctl_option" onclick="fresh_model();add_mo('灰度转化');add_mo('BLACK-HAT变换');add_mo('过滤');">特征提取</button>
+				<button class="p_ctl_option">表面缺陷检测评估(未定义)</button>
+			</div>
+				<div class="p_ctl_block">
+					<label class="p_ctl_title">机器学习算法(待开放)</label>
+					<button class="p_ctl_option p_std_font">SVM支持向量机</button>
+					<button class="p_ctl_option p_std_font">k-mean聚类分析</button>
+				</div>
+			<div class="p_ctl_block">
+				<label class="p_ctl_title">光学应用(待开放)</label>
+				<button class="p_ctl_option">工业检测环境布置</button>
+			</div>
+				<div class="p_ctl_block">
+					<label class="p_ctl_title">深度学习(待开放)</label>
+					<button class="p_ctl_option">基础神经网络</button>
+					<button class="p_ctl_option">卷积神经网络</button>
+				</div>
+		</div>
+	</div>
+	<div class="p_context">
+		<div class="p_label_arrow"></div>
+		<label class="p_title">视觉模型构建</label>
+		
+			<div class="p_tips">
+				<p style="color: dimgray; font-size: 14px;">Tips: 请使用右侧<b>'预处理'</b>和<b>'图像算法'</b>模块完成对视觉图像处理的算法模型的构建。当前版本V1.0，不具备实时模型检测功能，请确保模型准确无误后提交运行！</p>
+			</div>
+		<div id="i_model_builder" class="p_model_build" style="display: none;"></div>
+
+		<div class="p_model_ops_block">
+			<div id="i_rebuild" class="p_model_fresh" onclick="fresh_model()" style="display: none;">REBUILD</div>
+			<div id="i_remove_the_last" class="p_model_fresh" onclick="remove_the_last()" style="display: none;">REMOVE THE LAST</div>
+		</div>
+
+		<div class="p_label_arrow"></div>
+		<label class="p_title">模型参数配置</label>
+		<div class="p_tips">
+			<p style="color: dimgray; font-size: 14px;">Tips: 按需对部分模块进行参数配置。模块中，ksize参数表示卷积核的大小，loop参数表示算法迭代的次数。</p>
+		</div>
+		<div id="i_model_cfg" class="p_model_cfg" style="color: #6E8DC2; font-weight: bold; display: none;"></div>
+
+		<div class="p_model_ops_block">
+			<div id="i_submit" class="p_model_fresh" onclick="submit_model()" style="display: none;">MODEL SUBMIT</div>
+		</div>
+
+		<div class="p_label_arrow"></div>
+		<label class="p_title">案例图像读取</label>
+			<div class="p_tips">
+				<p style="color: dimgray; font-size: 14px;">Tips: 请使用右侧'案例图像'模块加载需要处理的图像。若想添加案例图片，请联系平台管理员进行添加。</p>
+			</div>
+		<div id="i_target_image">
+		</div>
+
+		<div id="i_model_state" class="p_model_state" style="display: none;"></div>
+
+		<div class="p_label_arrow"></div>
+		<label class="p_title">模型处理结果</label>
+			<div class="p_tips">
+				<p style="color: dimgray; font-size: 14px;">Tips: 在完成视觉模型构建后，并选择待处理的图像，运行模型，即可提取输出分析完的图像。模型运行的状态，在提交后会出现在<b>'模型处理结果'</b>标题行最后。若出现模型长时间未出结果，请联系平台管理员检查后端系统。</p>
+			</div>
+		<div id="i_result_image">
+		</div>
+		<br>
+	</div>
+	<script type="text/javascript">
+		/* ajax interface */
+		let ajax = {
+			obj: new XMLHttpRequest(),
+			post: function (url, data, success, error) {
+				let T = this.obj;
+				T.open('POST', url, true);
+				T.setRequestHeader("Content-Type", "application/json");
+				T.send(JSON.stringify(data));
+				T.onload = function () {
+					if (T.status === 200 || T.status === 304) {
+						if (success && success instanceof Function) {
+							success.call(T, T.responseText);
+						} else {
+							console.error("No success handle function!");
+							alert("No success handle function!");
+						}
+					} else {
+						error.call(T, T.responseText);
+					}
+				}
+			},
+			get: function (url, success, error) {
+				let T = this.obj;
+				T.open('GET', url, true);
+				T.setRequestHeader("Content-Type", "application/json");
+				T.send();
+				T.onload = function () {
+					if (T.status === 200 || T.status === 304) {
+						if (success && success instanceof Function) {
+							success.call(T, T.responseText);
+						} else {
+							console.error("No success handle function!");
+							alert("No success handle function!");
+						}
+					} else {
+						error.call(T, T.responseText);
+					}
+				}
+			}
+		};
+
+		function makeNoneCfg(index, taskName) {return `<div id="i_cfg_${index-1}" style="margin-bottom: 20px;"><label class="p_std_font" style="color: #6E8DC2">STEP-${index}. ${taskName} - 无</label></div>`;}
+
+		function makeKSizeCfg(index, taskName, labelID) {
+			return `<div id="i_cfg_${index-1}" style="margin-bottom: 20px;">
+						<label class="p_std_font" style="color: #6E8DC2">STEP-${index}. ${taskName}</label>
+						<div>
+							<div style="margin-top: 10px; margin-right: 20px; display: inline-block; width: 120px; height: 28px; border-radius: 14px; border: 1px solid #6E8DC2;">
+								<label class="p_std_font" style="margin-left: 20px; height: 100%;">ksize</label>
+								<input class="p_std_font" id="${labelID}" style="height: 100%; margin-left: 5px; display: inline-block; border: none; background: transparent; width: 30px; font-weight: bold; color: black;" placeholder="3">
+							</div>
+						</div>
+					</div>`;
+		}
+
+		function makeKSizeLoopCfg(index, taskName, labelID0, labelID1) {
+			return `<div id="i_cfg_${index-1}" style="margin-bottom: 20px;">
+						<label class="p_std_font" style="color: #6E8DC2">STEP-${index}. ${taskName}</label>
+						<div>
+							<div style="margin-top: 10px; margin-right: 20px; display: inline-block; width: 120px; height: 28px; border-radius: 14px; border: 1px solid #6E8DC2;">
+								<label class="p_std_font" style="margin-left: 20px; height: 100%;">ksize</label>
+								<input class="p_std_font" id="${labelID0}" style="height: 100%; margin-left: 5px; display: inline-block; border: none; background: transparent; width: 30px; font-weight: bold; color: black;" placeholder="3">
+							</div>
+							<div style="margin-top: 10px; margin-right: 20px; display: inline-block; width: 120px; height: 28px; border-radius: 14px; border: 1px solid #6E8DC2;">
+								<label class="p_std_font" style="margin-left: 20px; height: 100%;">loop</label>
+								<input class="p_std_font" id="${labelID1}" style="height: 100%; margin-left: 5px; display: inline-block; border: none; background: transparent; width: 30px; font-weight: bold; color: black;" placeholder="1">
+							</div>
+						</div>
+					</div>`;
+		}
+
+		/* model information */
+		let modelInfo = {
+			mo_count: 0,
+			co_count: 0,
+			co_list: [
+				'#F2DCDB',
+				'#FCCABC',
+				'#E38899',
+				'#6E8DC2',
+				'#797E9F',
+			],
+			target_image: null,
+			gen: [],
+			cfg: [],
+		};
+
+		let monitorHandler = null;
+		function submit_model() {
+			// let modeData = null;
+			if (modelInfo.gen.length === 0) {alert('Please add algorithm modules!');  return;}
+			if (modelInfo.target_image === null) {alert('Please choose a image from case images!'); return;}
+			for (let mod in modelInfo.gen) {
+				let mo_p = modelInfo.gen[mod];
+				console.info("-> " + mod + ", " + mo_p.proc + ", " + JSON.stringify(mo_p));
+				if (mo_p.proc === 'Threshold') {
+					let lower = document.getElementById(`${mo_p.proc}_lower_${mod}`).value;
+					let upper = document.getElementById(`${mo_p.proc}_upper_${mod}`).value;
+					mo_p.lower = lower && lower !== '' ? parseInt(lower) : 100;
+					mo_p.upper = upper && upper !== '' ? parseInt(upper) : 200;
+				} else if (['Grad', 'TopHat', 'BlackHat'].includes(mo_p.proc)) {
+					let ksize = document.getElementById(`${mo_p.proc}_ksize_${mod}`).value;
+					mo_p.ksize = ksize && ksize !== '' ? parseInt(ksize) : 3;
+				} else if (['GaussBlur', 'Open', 'Close'].includes(mo_p.proc)) {
+					let ksize = document.getElementById(`${mo_p.proc}_ksize_${mod}`).value;
+					let loop = document.getElementById(`${mo_p.proc}_loop_${mod}`).value;
+					mo_p.ksize = ksize && ksize !== '' ? parseInt(ksize) : 3;
+					mo_p.loop = loop && loop !== '' ? parseInt(loop) : 1;
+				}
+			}
+			ajax.post('/model', {'mo': modelInfo.gen, 'image': modelInfo.target_image}, () => {
+				document.getElementById('i_model_state').style.background = '#7CFC00';
+			});
+			monitorHandler = setInterval(() => {
+				ajax.get('/model', (data) => {
+					let resp = JSON.parse(data);
+					if (resp.state === 'RUNNING') {
+						document.getElementById('i_model_state').style.background = '#7CFC00';
+					} else if (resp.state === 'FINISH') {
+						document.getElementById('i_model_state').style.background = 'dimgray';
+						document.getElementById('i_result_image').innerHTML = `<img src="out/${resp.image}" width="200" height="auto" onclick="change_image_size(this)" style="width: 200px; height:auto; box-shadow: 0 0 15px #272727;"/>`;
+						clearInterval(monitorHandler);
+					} else if (resp.state === 'NONE') {
+						document.getElementById('i_model_state').style.background = 'dimgray';
+					}
+				});
+			}, 500);
+		}
+		
+		function load_case_images() {
+			let success = function (data) {
+				/* Main code logic */
+				console.info("[GET] images info: " + data);
+				let resp = JSON.parse(data);
+				let imagesUrl = resp.images_url;
+				document.getElementById('i_case_images').innerHTML = '';
+				for (let imgIdx in imagesUrl) {
+					console.info("img index: " + imgIdx);
+					document.getElementById('i_case_images').innerHTML += `<div id="i_img_${imgIdx}" onclick="add_image2mo('${imagesUrl[imgIdx]}')" class="p_img_block"><img src="pic/${imagesUrl[imgIdx]}" width="38px" height="38px" class="p_img_font"/><div class="p_img_back">${imagesUrl[imgIdx]}</div></div>`;
+				}
+			};
+			ajax.get('/images/info', success, (T, err) => console.error(err));
+		}
+		
+		function change_image_size(ele) {
+			console.info("ele width: " + ele.style.width);
+			let s = ele.style.width;
+			s.replace('px', '');
+			let wid = parseInt(s);
+			if (wid < 1000) {
+				ele.style.width = (wid + 200).toString() + "px";
+				ele.style.height = "auto";
+			} else {
+				ele.style.width = "200px";
+				ele.style.height = "auto";
+			}
+		}
+
+		function add_image2mo(imageName) {
+			modelInfo.target_image = imageName;
+			document.getElementById('i_target_image').innerHTML = `<img src="pic/${imageName}" width="200" height="auto" onclick="change_image_size(this)" style="width: 200px; height:auto; box-shadow: 0 0 15px #272727;"/>`;
+		}
+
+		function remove_the_last() {
+			document.getElementById('i_model_builder').removeChild(document.getElementById(`MO_${modelInfo.mo_count - 1}`));
+			console.info("mo count: " + modelInfo.mo_count);
+			if (modelInfo.cfg[modelInfo.mo_count - 1] !== null) {
+				document.getElementById('i_model_cfg').removeChild(document.getElementById(`i_cfg_${modelInfo.mo_count - 1}`));
+			}
+			modelInfo.mo_count--;
+			modelInfo.co_count--;
+			modelInfo.gen.pop();
+			modelInfo.cfg.pop();
+			if (modelInfo.mo_count === 0) {
+				document.getElementById('i_model_builder').style.display = 'none';
+				document.getElementById('i_model_cfg').style.display = 'none';
+				document.getElementById('i_rebuild').style.display = 'none';
+				document.getElementById('i_remove_the_last').style.display = 'none';
+				document.getElementById('i_submit').style.display = 'none';
+				document.getElementById('i_model_state').style.display = 'none';
+			}
+		}
+
+		function fresh_model() {
+			document.getElementById('i_model_cfg').innerHTML = '';
+			document.getElementById('i_model_builder').innerHTML = '';
+			document.getElementById('i_model_builder').style.display = 'none';
+			document.getElementById('i_remove_the_last').style.display = 'none';
+			document.getElementById('i_rebuild').style.display = 'none';
+			document.getElementById('i_submit').style.display = 'none';
+			document.getElementById('i_model_state').style.display = 'none';
+			document.getElementById('i_model_cfg').style.display = 'none';
+			modelInfo.mo_count = 0;
+			modelInfo.co_count = 0;
+			modelInfo.gen = [];
+			modelInfo.cfg = [];
+		}
+
+		function add_mo(taskName) {
+			if (taskName === '灰度转化') {
+				modelInfo.gen.push({proc: 'MakeGray'});
+				modelInfo.cfg.push(null);
+			} else if (taskName === 'HISTOGRAM统计') {
+				modelInfo.gen.push({proc: '?'});
+				modelInfo.cfg.push(null);
+			} else if (taskName === '滤波') {
+				modelInfo.gen.push({proc: 'GaussBlur'});
+				modelInfo.cfg.push({ksize: `GaussBlur_ksize_${modelInfo.mo_count}`, loop: `GaussBlur_loop_${modelInfo.mo_count}`});
+				document.getElementById('i_model_cfg').innerHTML += makeKSizeLoopCfg(modelInfo.mo_count + 1, taskName, `GaussBlur_ksize_${modelInfo.mo_count}`, `GaussBlur_loop_${modelInfo.mo_count}`);
+			} else if (taskName === '卷积') {
+				modelInfo.gen.push({proc: '?'});
+				modelInfo.cfg.push(null);
+			} else if (taskName === '梯度算子') {
+				modelInfo.gen.push({proc: 'Grad'});
+				modelInfo.cfg.push({ksize: `Grad_ksize_${modelInfo.mo_count}`});
+				document.getElementById('i_model_cfg').innerHTML += makeKSizeCfg(modelInfo.mo_count + 1, taskName, `Grad_ksize_${modelInfo.mo_count}`);
+			} else if (taskName === 'TOP-HAT变换') {
+				modelInfo.gen.push({proc: 'TopHat'});
+				modelInfo.cfg.push({ksize: `TopHat_ksize_${modelInfo.mo_count}`});
+				document.getElementById('i_model_cfg').innerHTML += makeKSizeCfg(modelInfo.mo_count + 1, taskName, `TopHat_ksize_${modelInfo.mo_count}`);
+			} else if (taskName === 'BLACK-HAT变换') {
+				modelInfo.gen.push({proc: 'BlackHat'});
+				modelInfo.cfg.push({ksize: `BlackHat_ksize_${modelInfo.mo_count}`});
+				document.getElementById('i_model_cfg').innerHTML += makeKSizeCfg(modelInfo.mo_count + 1, taskName, `BlackHat_ksize_${modelInfo.mo_count}`);
+			} else if (taskName === '开运算') {
+				modelInfo.gen.push({proc: 'Open'});
+				modelInfo.cfg.push({ksize: `Open_ksize_${modelInfo.mo_count}`, loop: `Open_loop_${modelInfo.mo_count}`});
+				document.getElementById('i_model_cfg').innerHTML += makeKSizeLoopCfg(modelInfo.mo_count + 1, taskName, `Open_ksize_${modelInfo.mo_count}`, `Open_loop_${modelInfo.mo_count}`);
+			} else if (taskName === '闭运算') {
+				modelInfo.gen.push({proc: 'Close'});
+				modelInfo.cfg.push({ksize: `Close_ksize_${modelInfo.mo_count}`, loop: `Close_loop_${modelInfo.mo_count}`});
+				document.getElementById('i_model_cfg').innerHTML += makeKSizeLoopCfg(modelInfo.mo_count + 1, taskName, `Close_ksize_${modelInfo.mo_count}`, `Close_loop_${modelInfo.mo_count}`);
+			} else if (taskName === '过滤') {
+				modelInfo.gen.push({proc: 'Threshold'});
+				modelInfo.cfg.push({ksize: `Threshold_lower_${modelInfo.mo_count}`, loop: `Threshold_upper_${modelInfo.mo_count}`});
+				document.getElementById('i_model_cfg').innerHTML += `<div id="i_cfg_${modelInfo.mo_count}" style="margin-bottom: 20px;">
+						<label style="color: #6E8DC2">STEP-${modelInfo.mo_count + 1}. ${taskName}</label>
+						<div>
+							<div style="margin-top: 10px; margin-right: 20px; display: inline-block; width: 120px; height: 28px; border-radius: 14px; border: 1px solid #6E8DC2;">
+								<label style="margin-left: 20px; height: 100%;">lower</label>
+								<input id="Threshold_lower_${modelInfo.mo_count}" style="height: 100%; margin-left: 5px; display: inline-block; border: none; background: transparent; width: 30px; font-weight: bold; color: black;" placeholder="100">
+							</div>
+							<div style="margin-top: 10px; margin-right: 20px; display: inline-block; width: 120px; height: 28px; border-radius: 14px; border: 1px solid #6E8DC2;">
+								<label style="margin-left: 20px; height: 100%;">upper</label>
+								<input id="Threshold_upper_${modelInfo.mo_count}" style="height: 100%; margin-left: 5px; display: inline-block; border: none; background: transparent; width: 30px; font-weight: bold; color: black;" placeholder="200">
+							</div>
+						</div>
+					</div>`;
+			} else if (taskName === '池化') {
+				modelInfo.gen.push({proc: '??'});
+				modelInfo.cfg.push(null);
+			} else if (taskName === '图像增强') {
+				modelInfo.gen.push({proc: '??'});
+				modelInfo.cfg.push(null);
+			} else {
+				modelInfo.gen.push({proc: '??'});
+				modelInfo.cfg.push(null);
+			}
+			document.getElementById('i_model_builder').style.display = 'block';
+			document.getElementById('i_model_cfg').style.display = 'block';
+			document.getElementById('i_remove_the_last').style.display = 'inline-block';
+			document.getElementById('i_rebuild').style.display = 'inline-block';
+			document.getElementById('i_submit').style.display = 'inline-block';
+			document.getElementById('i_model_state').style.display = 'inline-block';
+			console.info("modelInfo.mo_count: " + modelInfo.mo_count);
+			let moAdder = document.createElement('div');
+			moAdder.id = 'MO_' + modelInfo.mo_count;
+			moAdder.className = 'p_mo_model';
+			let commentStyle = 'p_comment';
+			if (modelInfo.mo_count + 1 > 9) {
+				commentStyle = 'p_comment2';
+			}
+			let ss = `<div id="i_arrow_${modelInfo.co_count}" class="p_arrow"><div id="i_arrow_comment_${modelInfo.co_count}" class="p_arrow_comment"></div><label class="${commentStyle}">${modelInfo.mo_count + 1}</label></div><label class="p_moName">${taskName}</label>`;
+			console.info(ss);
+			moAdder.innerHTML = ss;
+			document.getElementById('i_model_builder').appendChild(moAdder);
+			let targetElement = document.getElementById(`i_arrow_${modelInfo.co_count}`);
+			targetElement.style = `border-top-color:${modelInfo.co_list[modelInfo.co_count % 4]};border-bottom-color:${modelInfo.co_list[modelInfo.co_count % 4]};`;
+			document.getElementById('i_style_manager').innerText += `\n#i_arrow_${modelInfo.co_count}::after {border-left-color: ${modelInfo.co_list[modelInfo.co_count % 4]}}`;
+			document.getElementById('i_style_manager').innerText += `\n#i_arrow_comment_${modelInfo.co_count} {border-top-color: ${modelInfo.co_list[modelInfo.co_count % 4]}}`;
+			document.getElementById('i_style_manager').innerText += `\n#i_arrow_comment_${modelInfo.co_count} {border-bottom-color: ${modelInfo.co_list[modelInfo.co_count % 4]}}`;
+			modelInfo.mo_count++;
+			modelInfo.co_count++;
+		}
+	</script>
+</body>
+</html>

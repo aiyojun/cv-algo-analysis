@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Machine Vision System</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <script src="jquery-3.6.0.min.js"></script>
+    <style id="i_style_manager" type="text/css"></style>
+    <link rel="icon" type="image/png" href="vision.png">
+</head>
+<body>
+<div id="i_controller" class="p_controller">
+    <div class="p_emm_block">
+        <label class="p_emm">机器视觉算法分析平台</label>
+    </div>
+    <div class="p_options">
+
+        <div class="p_ctl_block">
+            <label class="p_ctl_title">预处理</label>
+            <button class="p_ctl_option" onclick="model.add('MakeGray')">[预处理]灰度转化</button>
+            <button class="p_ctl_option p_std_font" onclick="model.add('HISTOGRAM统计')">[统计]HISTOGRAM统计(未开放)</button>
+        </div>
+
+        <div class="p_ctl_block">
+            <label class="p_ctl_title">图像算法</label>
+            <button class="p_ctl_option" onclick="model.add('GaussBlur')">[滤波]高斯滤波</button>
+            <button class="p_ctl_option" onclick="model.add('Pool')">[压缩]池化</button>
+            <button class="p_ctl_option" onclick="model.add('卷积')">[运算]卷积(未定义)</button>
+            <button class="p_ctl_option" onclick="model.add('Grad')">[运算]梯度算子</button>
+            <button class="p_ctl_option p_std_font" onclick="model.add('TopHat')">[形态学]TOP-HAT变换</button>
+            <button class="p_ctl_option p_std_font" onclick="model.add('BlackHat')">[形态学]BLACK-HAT变换</button>
+            <button class="p_ctl_option" onclick="model.add('Open')">[形态学]开运算</button>
+            <button class="p_ctl_option" onclick="model.add('Close')">[形态学]闭运算</button>
+            <button class="p_ctl_option" onclick="model.add('Threshold')">[分割]阈值分割</button>
+            <button class="p_ctl_option" onclick="model.add('Binaryzation')">[分割]二值化</button>
+            <button class="p_ctl_option" onclick="model.add('Inv')">[分割]反相</button>
+            <button class="p_ctl_option" onclick="model.add('Equalization')">[增强]均衡化</button>
+            <button class="p_ctl_option" onclick="model.add('DrawHoughLines')">[算法]霍夫直线检测</button>
+            <button class="p_ctl_option" onclick="model.add('DrawHoughCircles')">[算法]霍夫圆检测</button>
+            <button class="p_ctl_option" onclick="model.add('DrawMinRect')">[算法]边界矩形提取</button>
+            <button class="p_ctl_option" onclick="model.add('DrawKeyPoints')">[算法]关键点检测</button>
+            <button class="p_ctl_option" onclick="model.add('DrawEdge')">[算法]轮廓提取</button>
+            <button class="p_ctl_option" onclick="model.add('DrawTargetArea')">[算法]目标区域提取</button>
+            <button class="p_ctl_option p_std_font" onclick="model.add('MSER')">[算法]MSER提取</button>
+        </div>
+        <div class="p_ctl_block">
+            <label class="p_ctl_title">高级算法(模型)</label>
+            <button class="p_ctl_option" onclick="
+				model.empty();
+				model.add('MakeGray');
+				model.addV2('BlackHat', {'ksize': 15});
+				model.addV2('Threshold', {'lower': 20});
+				model.add('Equalization');">
+                [特征]高反表面质量评估
+            </button>
+            <button class="p_ctl_option" onclick="
+				model.empty();
+				model.add('MakeGray');
+				model.addV2('BlackHat', {'ksize': 15});
+				model.addV2('Threshold', {'lower': 20});
+				model.add('Equalization');
+				model.add('DrawTargetArea');">
+                [特征]高反表面缺陷提取
+            </button>
+            <button class="p_ctl_option" onclick="
+				model.empty();
+				model.add('MakeGray');
+				model.addV2('Binaryzation', {'lower': 100, 'upper': 256});
+				model.add('Inv');
+				model.addV2('DrawMinRect', {'thick': 3});">
+                [测量]背光边界定位
+            </button>
+            <button class="p_ctl_option" onclick="
+				model.empty();
+				model.add('MakeGray');
+				model.addV2('Binaryzation', {'lower': 100, 'upper': 256});
+				model.add('Inv');
+				model.addV2('DrawEdge', {'thick': 3});">
+                [测量]背光轮廓提取
+            </button>
+            <button class="p_ctl_option" onclick="
+				model.empty();
+				model.add('MakeGray');
+				model.addV2('Binaryzation', {'lower': 100, 'upper': 256});
+				model.addV2('DrawKeyPoints', {'thick': 2});">
+                [测量]背光关键点提取
+            </button>
+            <button class="p_ctl_option">
+                [特征]表面缺陷检测评估(未定义)</button>
+        </div>
+        <div class="p_ctl_block">
+            <label class="p_ctl_title">机器学习算法(待开放)</label>
+            <button class="p_ctl_option p_std_font">[监督]SVM支持向量机</button>
+            <button class="p_ctl_option p_std_font">[无监督]k-mean聚类分析</button>
+        </div>
+        <div class="p_ctl_block">
+            <label class="p_ctl_title">光学应用(待开放)</label>
+            <button class="p_ctl_option">工业检测环境布置</button>
+        </div>
+        <div class="p_ctl_block">
+            <label class="p_ctl_title">深度学习(待开放)</label>
+            <button class="p_ctl_option">基础神经网络</button>
+            <button class="p_ctl_option">卷积神经网络</button>
+        </div>
+    </div>
+
+    <div class="p_images_extract">
+        <div class="p_ctl_block">
+            <label class="p_ctl_title">案例图像</label>
+            <button class="p_ctl_option" onclick="load_case_images()">[图像]案例载入</button>
+            <div id="i_case_images"></div>
+        </div>
+        <div class="p_ctl_block">
+            <label class="p_ctl_title">Pylon系列相机控制</label>
+            <button class="p_ctl_option" onclick="pylon_cam_shot()">[相机]拍摄当前</button>
+        </div>
+    </div>
+
+
+</div>
+<div class="p_context">
+    <!--		<div>-->
+
+    <!--			<div style="margin-top: 10px; margin-bottom: 10px;">-->
+    <!--				<label style="display: block; color: dimgray; font-weight: bold; margin-bottom: 5px;">STEP-2. Finding area</label>-->
+    <!--				<label style="display: inline-block; width: 100px; color: dimgray; font-weight: bold; text-align: right;">Min area</label>-->
+    <!--				<label style="">-->
+    <!--					<input type="text" name="x01" placeholder="10"-->
+    <!--						   style="margin-left: 5px; border: solid 1px #c0c0c0; border-radius: 20px; padding-left: 10px;-->
+    <!--						   display: inline-block; width: 100px; color: black; font-weight: bolder; font-size: 14px;">-->
+    <!--				</label>-->
+    <!--			</div>-->
+
+
+    <!--		</div>-->
+    <div class="p_label_arrow"></div>
+    <label class="p_title">案例图像读取</label>
+    <div class="p_tips">
+        <p style="color: dimgray; font-size: 14px;">Tips: 请使用右侧'案例图像'模块加载需要处理的图像。若想添加案例图片，请联系平台管理员进行添加。</p>
+    </div>
+    <div id="i_target_image">
+    </div>
+
+    <div id="i_model_state" class="p_model_state" style="display: none;"></div>
+
+    <div class="p_label_arrow"></div>
+    <label class="p_title">模型处理结果</label>
+    <div class="p_tips">
+        <p style="color: dimgray; font-size: 14px;">Tips: 在完成视觉模型构建后，并选择待处理的图像，运行模型，即可提取输出分析完的图像。模型运行的状态，在提交后会出现在<b>'模型处理结果'</b>标题行最后。若出现模型长时间未出结果，请联系平台管理员检查后端系统。</p>
+    </div>
+    <div id="i_result_image">
+    </div>
+    <br>
+
+    <div class="p_label_arrow"></div>
+    <label class="p_title">视觉模型构建</label>
+
+    <div class="p_tips">
+        <p style="color: dimgray; font-size: 14px;">Tips: 请使用右侧<b>'预处理'</b>和<b>'图像算法'</b>模块完成对视觉图像处理的算法模型的构建。当前版本V1.0，不具备实时模型检测功能，请确保模型准确无误后提交运行！</p>
+    </div>
+    <div id="i_model_builder" class="p_model_build" style="display: none;"></div>
+
+    <div class="p_model_ops_block">
+        <div id="i_rebuild" class="p_model_fresh" onclick="model.empty()" style="display: none;">REBUILD</div>
+        <div id="i_remove_the_last" class="p_model_fresh" onclick="model.pop()" style="display: none;">REMOVE THE LAST</div>
+    </div>
+
+    <div class="p_label_arrow"></div>
+    <label class="p_title">模型参数配置</label>
+    <div class="p_tips">
+        <p style="color: dimgray; font-size: 14px;">Tips: 按需对部分模块进行参数配置。模块中，ksize参数表示卷积核的大小，loop参数表示算法迭代的次数。</p>
+    </div>
+    <div id="i_model_cfg" class="p_model_cfg" style="color: #6E8DC2; font-weight: bold; display: none;"></div>
+
+    <div class="p_model_ops_block">
+        <div id="i_submit" class="p_model_fresh" onclick="model.submit()" style="display: none;">MODEL SUBMIT</div>
+    </div>
+
+
+</div>
+<script type="text/javascript">
+    /* ajax interface */
+    let ajax={obj:new XMLHttpRequest(),post:function(url,data,success,error){let T=this.obj;T.open('POST',url,true);T.setRequestHeader("Content-Type","application/json");T.send(JSON.stringify(data));T.onload=function(){if(T.status===200||T.status===304){if(success&&success instanceof Function){success.call(T,T.responseText)}else{console.error("No success handle function!");alert("No success handle function!")}}else{error.call(T,T.responseText)}}},get:function(url,success,error){let T=this.obj;T.open('GET',url,true);T.setRequestHeader("Content-Type","application/json");T.send();T.onload=function(){if(T.status===200||T.status===304){if(success&&success instanceof Function){success.call(T,T.responseText)}else{console.error("No success handle function!");alert("No success handle function!")}}else{error.call(T,T.responseText)}}}};
+
+    let model = {
+        plugins: {
+            'MSER': {'args': [{'name': 'min', 'default': 500}, {'name': 'max', 'default': 1000}, {'name': 'thick', 'default': 2}]},
+            'Inv': {'args': []},
+            'DrawTargetArea': {'args': [{'name': 'thick', 'default': 2}, {'name': 'min', 'default': 25}]},
+            'DrawEdge': {'args': [{'name': 'thick', 'default': 2}]},
+            'DrawHoughLines': {'args': [{'name': 'thick', 'default': 2}]},
+            'DrawHoughCircles': {'args': [
+                    {'name': 'Dmin', 'default': 10},
+                    {'name': 'Rmin', 'default': 50},
+                    {'name': 'Rmax', 'default': 800},
+                    {'name': 'thick', 'default': 2}
+                ]},
+            'DrawMinRect': {'args': [{'name': 'thick', 'default': 2}]},
+            'DrawKeyPoints': {'args': [{'name': 'thick', 'default': 2}]},
+            /* The new plugins like the above! */
+            'MakeGray': {'args': []},
+            'Equalization': {'args': []},
+            'GaussBlur': {'args': [{'name': 'ksize', 'default': 3}, {'name': 'loop', 'default': 1}]},
+            'Grad': {'args': [{'name': 'ksize', 'default': 3}]},
+            'Pool': {'args': [{'name': 'ksize', 'default': 2}]},
+            'TopHat': {'args': [{'name': 'ksize', 'default': 3}]},
+            'BlackHat': {'args': [{'name': 'ksize', 'default': 3}]},
+            'Open': {'args': [{'name': 'ksize', 'default': 3}, {'name': 'loop', 'default': 1}]},
+            'Close': {'args': [{'name': 'ksize', 'default': 3}, {'name': 'loop', 'default': 1}]},
+            'Threshold': {'args': [{'name': 'lower', 'default': 0}, {'name': 'upper', 'default': 256}]},
+            'Binaryzation': {'args': [{'name': 'lower', 'default': 0}, {'name': 'upper', 'default': 256}]},
+        },
+        pluginsTag: {
+            'MSER': 'MSER提取',
+            'Inv': '反相',
+            'DrawTargetArea': '目标区域提取',
+            'DrawEdge': '轮廓提取',
+            'DrawHoughCircles': '霍夫圆检测',
+            'DrawHoughLines': '霍夫直线检测',
+            'DrawMinRect': '边界矩形提取',
+            'DrawKeyPoints': '关键点检测',
+            /* The new plugins like the above! */
+            'MakeGray': '灰度转化',
+            'GaussBlur': '高斯滤波',
+            'Pool': '池化',
+            'Grad': '梯度算子',
+            'TopHat': 'TOP-HAT变换',
+            'BlackHat': 'BLACK-HAT变换',
+            'Open': '开运算',
+            'Close': '闭运算',
+            'Threshold': '阈值分割',
+            'Equalization': '均衡化',
+            'Binaryzation': '二值化',
+        },
+        colors: ['#F2DCDB', '#FCCABC', '#E38899', '#6E8DC2', '#797E9F'],
+        colorIndex: 0,
+        image: null,
+        size: 0,
+        data: [],  // {proc: ..., ksize: ..., loop: ...}
+        settings: [],  // {ksize: ksize_id, ...}
+        add: function(pluginID) {
+            this.addV2(pluginID, null);
+        },
+        addV2: function (pluginID, _pluginData) {
+            $('#i_model_builder').css({'display': 'block'});
+            $('#i_model_cfg').css({'display': 'block'});
+            $('#i_remove_the_last').css({'display': 'inline-block'});
+            $('#i_rebuild').css({'display': 'inline-block'});
+            $('#i_submit').css({'display': 'inline-block'});
+            $('#i_model_state').css({'display': 'inline-block'});
+
+            let pluginData = {'proc': pluginID};
+            console.info("Extract plugin: " + pluginID);
+            console.info(JSON.stringify(this.plugins[pluginID]));
+            let settingIDs = {};
+            if (this.pluginsTag.hasOwnProperty(pluginID) && this.plugins[pluginID]['args'].length > 0) {
+                let htmlBlock = $(`<div id="i_cfg_${this.size}" style="margin-bottom: 20px;"></div>`);
+                htmlBlock.append($(`<label class="p_std_font" style="color: #6E8DC2">STEP-${this.size + 1}. ${pluginID}</label>`));
+                let argsData = this.plugins[pluginID]['args'];
+                for (let argsIndex in argsData) {
+                    let name = argsData[argsIndex]['name'];
+                    pluginData[name] = argsData[argsIndex]['default'];
+                    if (_pluginData !== null && _pluginData.hasOwnProperty(name)) {
+                        pluginData[name] = _pluginData[name];
+                    }
+                    let label = $(`<label class="p_std_font">${name}</label>`);
+                    label.css({'margin-left': '20px', 'height': "100%"}); //<label class="p_std_font" style="margin-left: 20px; height: 100%;">ksize</label>
+                    let inputID = `${pluginID}_${name}_${this.size}`;
+                    settingIDs[name] = inputID;
+                    let input = $(`<input id="${inputID}" class="p_std_font" placeholder="${pluginData[name]}">`);
+                    input.val(pluginData[name]);
+                    input.css({'height': '100%', 'margin-left': '5px', 'display': 'inline-block', 'border': 'none', 'background': 'transparent', 'width': '30px', 'font-weight': 'bold', 'color': 'black'});
+                    let block = $('<div style="margin-top: 10px; margin-right: 20px; display: inline-block; width: 120px; height: 28px; border-radius: 14px; border: 1px solid #6E8DC2;"></div>');
+                    block.append(label, input);
+                    let div = $('<div></div>');
+                    div.append(block);
+                    htmlBlock.append(div);
+                }
+                $('#i_model_cfg').append(htmlBlock);
+            }
+
+            let modelBlock = $(`<div id="MO_${this.size}" class="p_mo_model"></div>`);
+            let commentCSS = this.size + 1 > 9 ? 'p_comment2' : 'p_comment';
+            modelBlock.html(`<div id="i_arrow_${this.size}" class="p_arrow"><div id="i_arrow_comment_${this.colorIndex}" class="p_arrow_comment"></div><label class="${commentCSS}">${this.size + 1}</label></div><label class="p_moName">${this.pluginsTag[pluginID]}</label>`);
+            $('#i_model_builder').append(modelBlock);
+            let styleManager = $(`#i_arrow_${this.colorIndex}`);
+            styleManager.css({
+                'border-top-color': this.colors[this.colorIndex % this.colors.length],
+                'border-bottom-color': this.colors[this.colorIndex % this.colors.length],
+            });
+            let styleString = `\n#i_arrow_${this.colorIndex}::after {border-left-color: ${this.colors[this.colorIndex % this.colors.length]}}`;
+            styleString += `\n#i_arrow_comment_${this.colorIndex} {border-top-color: ${this.colors[this.colorIndex % this.colors.length]}}`;
+            styleString += `\n#i_arrow_comment_${this.colorIndex} {border-bottom-color: ${this.colors[this.colorIndex % this.colors.length]}}`;
+            $('#i_style_manager').append(styleString);
+
+            this.data.push(pluginData);
+            this.settings.push(settingIDs);
+            this.colorIndex++;
+            this.size++;
+        },
+        timer: null,
+        submit: function () {
+            if (this.data.length === 0) {alert('Please add algorithm modules!');  return;}
+            if (this.image === null) {alert('Please choose a image from case images!'); return;}
+            for (let pluginIndex in this.data) {
+                let pluginData = this.data[pluginIndex];
+                let pluginSettingsID = this.settings[pluginIndex];
+                let pluginMeta = this.plugins[pluginData['proc']];
+                for (let settingIndex in pluginMeta['args']) {
+                    let setting = pluginMeta['args'][settingIndex];
+                    let settingID = pluginSettingsID[setting['name']];
+                    let value = $(`#${settingID}`).val();
+                    value = value === null || value === '' ?  setting['default'] : parseInt(value);
+                    pluginData[setting['name']] = value;
+                }
+            };
+            ajax.post('/model', {'mo': model.data, 'image': model.image}, () => {$('#i_model_state').css({'background': '#7CFC00'});});
+
+            this.timer = setInterval(() => {
+                ajax.get('/model', (data) => {
+                    let resp = JSON.parse(data);
+                    if (resp.state === 'RUNNING') {
+                        $('#i_model_state').css({'background': '#7CFC00'});
+                        $('#i_result_image').html(`<div> >>> 正在 ${resp['stage']} ...</div>`);
+                    } else if (resp.state === 'FINISH') {
+                        $('#i_model_state').css({'background': 'dimgray'});
+                        let htmlBlock = `<img src="out/${resp.image}" width="200" height="auto" onclick="model.resizeImage(this)" style="width: 200px; height:auto; box-shadow: 0 0 15px #272727;"/><br>`;
+                        $('#i_result_image').html(htmlBlock);
+                        clearInterval(this.timer);
+                    } else if (resp.state === 'NONE') {
+                        $('#i_model_state').css({'background': 'dimgray'});
+                        clearInterval(this.timer);
+                    } else if (resp.state === 'ERROR') {
+                        $('#i_model_state').css({'background': 'red'});
+                        clearInterval(this.timer);
+                        alert('Machine vision system error!');
+                    }
+                });
+            }, 500);
+        },
+        resizeImage: function(element) {
+            let s = element.style.width;
+            s.replace('px', '');
+            let wid = parseInt(s);
+            if (wid < 1000) {
+                element.style.width = (wid + 200).toString() + "px";
+                element.style.height = "auto";
+            } else {
+                element.style.width = "200px";
+                element.style.height = "auto";
+            }
+        },
+        loadImage: function (imageID) {
+            this.image = imageID;
+            $('#i_target_image').html(`<img src="pic/${imageID}" width="200" height="auto" onclick="model.resizeImage(this)" style="width: 200px; height:auto; box-shadow: 0 0 15px #272727;"/><br><br>`);
+        },
+        pop: function () {
+            document.getElementById('i_model_builder').removeChild(document.getElementById(`MO_${this.size - 1}`));
+            console.info("mo count: " + this.size);
+            if (Object.getOwnPropertyNames(this.settings[this.size - 1]).length !== 0) {
+                document.getElementById('i_model_cfg').removeChild(document.getElementById(`i_cfg_${this.size - 1}`));
+            }
+            this.size--;
+            this.colorIndex--;
+            this.data.pop();
+            this.settings.pop();
+            if (modelInfo.mo_count === 0) {
+                $('#i_model_builder').css('display', 'none');
+                $('#i_model_cfg').css('display', 'none');
+                $('#i_rebuild').css('display', 'none');
+                $('#i_remove_the_last').css('display', 'none');
+                $('#i_submit').css('display', 'none');
+                $('#i_model_state').css('display', 'none');
+            }
+        },
+        empty: function () {
+            $('#i_model_cfg').empty();
+            $('#i_model_cfg').css('display', 'none');
+            $('#i_model_builder').empty();
+            $('#i_model_builder').css('display', 'none');
+
+            $('#i_rebuild').css('display', 'none');
+            $('#i_remove_the_last').css('display', 'none');
+            $('#i_model_state').css('display', 'none');
+            $('#i_submit').css('display', 'none');
+
+            this.colorIndex = 0;
+            this.size = 0;
+            this.data = [];
+            this.settings = [];
+            this.timer = null;
+        },
+    };
+
+    function pylon_cam_shot() {
+        // alert('正在整合pylon相机，待系统该模块开放再使用！'); return; #7CFC00
+        $('#i_target_image').html(`<h4 style="color: dimgray;"> >>> 提取图像中...</h4><br><br>`);
+        ajax.get('/pylon', (data) => {
+            let resp = JSON.parse(data);
+            if (resp.hasOwnProperty('image_id')) {
+                model.loadImage(resp['image_id']);
+            } else if (resp.hasOwnProperty('error')) {
+                alert(resp['error']);
+            }
+        })
+    }
+
+    function remove_image(blockID, imageID) {
+        ajax.post('/ops', {'image': imageID, 'ops': 'del'}, (data) => {
+            let resp = JSON.parse(data);
+            if (resp.hasOwnProperty('success') && resp['success']) {blockID.remove();}
+        })
+    }
+
+    function load_case_images() {
+        let success = function (data) {
+            /* Main code logic */
+            console.info("[GET] images info: " + data);
+            let resp = JSON.parse(data);
+            let imagesUrl = resp.images_url;
+            let imagesBlock = $("#i_case_images");
+            imagesBlock.html('');
+            for (let imgIdx in imagesUrl) {
+                imagesBlock.append(`<div id="i_img_${imgIdx}" onclick="model.loadImage('${imagesUrl[imgIdx]}')" class="p_img_block"><img src="pic/${imagesUrl[imgIdx]}" width="38px" height="38px" class="p_img_font"/><div class="p_img_back">${imagesUrl[imgIdx]}</div></div>`);
+                // $(`#i_img_${imgIdx}`).keypress((event) => {
+                // 	console.info("recv key press : " + event.keyCode);
+                // 	if (event.keyCode === 68) {
+                // 		remove_image(`i_img_${imgIdx}`, `${imagesUrl[imgIdx]}`);
+                // 	}
+                // });
+            }
+        };
+        ajax.get('/images/info', success, (T, err) => console.error(err));
+    }
+</script>
+</body>
+</html>
